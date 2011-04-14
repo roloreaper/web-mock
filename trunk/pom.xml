@@ -6,8 +6,8 @@
     <artifactId>httpmock</artifactId>
     <version>0.1-SNAPSHOT</version>
     <scm>
-        <connection>scm:svn:https://http-mock.googlecode.com/svn/trunk</connection>
-        <developerConnection>scm:svn:https://http-mock.googlecode.com/svn/trunk</developerConnection>
+        <connection>scm:svn:https://http-mock.googlecode.com/svn/branches/1.0</connection>
+        <developerConnection>scm:svn:https://http-mock.googlecode.com/svn/branches/1.0</developerConnection>
     </scm>
 
     <build>
