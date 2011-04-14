@@ -4,7 +4,7 @@
     <description>HTTPmock API</description>
     <groupId>org.httpmock</groupId>
     <artifactId>httpmock</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <scm>
         <connection>scm:svn:https://http-mock.googlecode.com/svn/branches/1.0</connection>
         <developerConnection>scm:svn:https://http-mock.googlecode.com/svn/branches/1.0</developerConnection>
