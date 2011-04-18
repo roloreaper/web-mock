@@ -1,17 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <description>HTTPmock API</description>
+    <description>Lightweight testing framework for mocking calls to external http calls</description>
     <groupId>org.httpmock</groupId>
     <artifactId>httpmock</artifactId>
     <version>1.0</version>
+    <packaging>jar</packaging>
+    <name>HttpMock WebServer API</name>
+    <url>https://code.google.com/p/http-mock</url>
+
+
+
+    <parent>
+            <groupId>org.sonatype.oss</groupId>
+            <artifactId>oss-parent</artifactId>
+            <version>7</version>
+    </parent>
+   <licenses>
+       <license>
+        <name>GNU GPL v3</name>
+        <url>http://www.gnu.org/licenses/gpl.html</url>
+        <distribution>repo</distribution>
+       </license>
+    </licenses>
+
+    
     <scm>
+        <url>https://http-mock.googlecode.com/svn/</url>
         <connection>scm:svn:https://http-mock.googlecode.com/svn/branches/1.0</connection>
         <developerConnection>scm:svn:https://http-mock.googlecode.com/svn/branches/1.0</developerConnection>
     </scm>
+    <developers>
+        <developer>
+                <id>roloreaper</id>
+                <name>Rowland</name>
+                <email>rolo.reaper@gmail.com</email>
+                <url>http://roloreaper.blogspot.com</url>
+                <roles>
+                        <role>developer</role>
+                </roles>
+                <timezone>+2</timezone>
+        </developer>
+                <developer>
+                <id>bheku</id>
+                <name>Bheku</name>
+                <email>bheku7@gmail.com</email>
+                <roles>
+                        <role>developer</role>
+                </roles>
+                <timezone>+2</timezone>
+        </developer>
+        <developer>
+                <id>stirling</id>
+                <name>Stirling</name>
+                <email>stirling.hansen@gmail.com</email>
+                <roles>
+                        <role>developer</role>
+                </roles>
+                <timezone>+2</timezone>
+            </developer>
+    </developers>
 
     <build>
         <plugins>
+		<!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+            </plugin>
+	    -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>javadoc</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+            </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
