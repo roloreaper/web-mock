@@ -27,11 +27,16 @@ public class MockHTTPServer extends NanoHTTPD {
             this.requestHandler = context.mock(RequestHandler.class);
         }
 
+    /**
+     * use this call if u expect the server to handle a service call to http://localhost:portUsedInBuild/service/test.html
+     * @param uri this would then be "/service/test.html"
+     * @return this.requestBuilder
+     */
         public RequestExpectationBuilder withExpectedURI(String uri) {
           return withExpectedURI(uri,1);
         }
 
-        public RequestExpectationBuilder withExpectedURI(String uri, int count) {
+        private RequestExpectationBuilder withExpectedURI(String uri, int count) {
             requestExpectations.exactly(count).of(requestHandler).url(requestExpectations.with(uri));
             return this;
         }
