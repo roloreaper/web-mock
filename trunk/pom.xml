@@ -4,7 +4,7 @@
     <description>Lightweight testing framework for mocking calls to external http calls</description>
     <groupId>org.httpmock</groupId>
     <artifactId>httpmock</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>HttpMock WebServer API</name>
     <url>https://code.google.com/p/http-mock</url>
@@ -24,9 +24,9 @@
             <version>7</version>
     </parent>
     <scm>
-        <url>https://http-mock.googlecode.com/svn/tags/1.1</url>
-        <connection>scm:svn:https://http-mock.googlecode.com/svn/tags/1.1</connection>
-        <developerConnection>scm:svn:https://http-mock.googlecode.com/svn/tags/1.1</developerConnection>
+        <url>https://http-mock.googlecode.com/svn/</url>
+        <connection>scm:svn:https://http-mock.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://http-mock.googlecode.com/svn/trunk</developerConnection>
     </scm>
     <developers>
         <developer>
