@@ -16,6 +16,13 @@ public class MockHTTPServer extends NanoHTTPD {
     return mockServers.get(port);
   }
 
+  public static void stopAllServers() {
+    for (Integer port : mockServers.keySet()) {
+      mockServers.get(port).stop();
+    }
+    mockServers.clear();
+  }
+
 
   public static MockHTTPServer startServer(int port, RequestHandler requestHandler, Mockery context) throws IOException {
 
@@ -38,32 +45,27 @@ public class MockHTTPServer extends NanoHTTPD {
   }
 
 
-    protected Response serve(String uri, String method, Properties header, Properties parms, Properties files) {
+    protected Response serve(String uri, String method, Properties header, Properties params,Properties multiPartSegments) {
         try {
         requestHandler.url(uri);
-        for (Object param : parms.keySet()) {
-            requestHandler.param(param.toString(),parms.getProperty(param.toString()));
+        for (Object param : params.keySet()) {
+            requestHandler.param(param.toString(), params.getProperty(param.toString()));
         }
-        return new NanoHTTPD.Response(requestHandler.getResponseStatus(), MIME_HTML, requestHandler.returnValue().toString());
+        return new Response(requestHandler.getResponseStatus(), MimeType.MIME_HTML.toString(), requestHandler.returnValue().toString());
         }
         catch (java.lang.Throwable e) {
             this.thrown = e;
             stop();
         }
 
-        return new NanoHTTPD.Response(HTTPStatusCode.HTTP_OK.toString(), MIME_HTML, "");
+        return null;
 
     }
 
    public void assertThatAllExpectationsAreMet() {
      stop();
-     for (Integer integer : mockServers.keySet()) {
-       if ((mockServers.get(integer)).equals(this)) {
-         mockServers.remove(integer);
-       }
-     }
+     mockServers.remove(this);
      if (thrown!=null) {
-       thrown.printStackTrace();
        throw new AssertionError(thrown);
      }
      context.assertIsSatisfied();

@@ -14,7 +14,7 @@ import java.net.Socket;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class MockHttpServerAcceptanceTestCase {
+public class MockHttpAcceptanceIntegrationTest {
     private final String testUri = "/service/doSomething";
     public final int port = 7666;
     private final String serverUrl = "http://localhost:" + port + "/";
@@ -35,7 +35,7 @@ public class MockHttpServerAcceptanceTestCase {
         MockHTTPServer server = builder.build(port);
         GetMethodWebRequest getMethodWebRequest = new GetMethodWebRequest(serverUrl + testUri);
         WebConversation wc = new WebConversation();
-        WebResponse response = wc.getResponse(getMethodWebRequest);
+        wc.getResponse(getMethodWebRequest);
         server.assertThatAllExpectationsAreMet();
     }
 
@@ -102,7 +102,7 @@ public class MockHttpServerAcceptanceTestCase {
         server.assertThatAllExpectationsAreMet();
     }
 
-    @Test
+    @Test(expected = AssertionError.class)
     public void shouldThrowErrorWhenCallCountIsOverStepped() throws IOException, SAXException {
         MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
         String returnValue = "theReturnValue";
@@ -111,37 +111,9 @@ public class MockHttpServerAcceptanceTestCase {
         getMethodWebRequest.setParameter("why", "yes");
         WebConversation wc = new WebConversation();
         wc.setExceptionsThrownOnErrorStatus(false);
-        WebResponse response = wc.getResponse(getMethodWebRequest);
-        assertThat(response.getResponseCode(), is(400));
+        wc.getResponse(getMethodWebRequest);
+        wc.getResponse(getMethodWebRequest);
         server.assertThatAllExpectationsAreMet();
-    }
-
-    @Test(expected = java.net.BindException.class)
-    public void shouldStillFailToStartIfPortIsInUseByNonMockHttpServer() throws IOException {
-        int portInUse = 5432;
-        ServerSocket serverSocket =null;
-        try {
-            serverSocket = new ServerSocket(portInUse);
-        }
-        catch (BindException e) {
-            System.out.println("Socket Already in use so ignoring");
-        }
-
-        try {
-            new MockHTTPServerBuilder().build(portInUse);
-        }
-        finally {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
-        }
-    }
-
-    @Test
-    public void shouldBeAbleToAccessServersStarted
-            () throws IOException {
-        MockHTTPServer mockHTTPServer1 = new MockHTTPServerBuilder().build(8089);
-        assertThat(mockHTTPServer1, is(MockHTTPServer.getServerOnPort(8089)));
     }
 
     @Test

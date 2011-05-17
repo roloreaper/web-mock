@@ -28,12 +28,25 @@ public class RequestExpectationTest {
   }
 
   @Test
+  public void assertRequestWithNoExpectationsThrowsNoExeptions() throws Exception {
+    MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+    Mockery context = mockHTTPServerBuilder.getContext();
+    RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+    RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+    requestExpectation.initialiseExpectationsForHandler(requestHandler);
+    context.checking(mockHTTPServerBuilder.getExpectations());
+    context.assertIsSatisfied();
+
+  }
+
+  @Test
   public void testWithExpectedURIAndCount() throws Exception {
     MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
     Mockery context = mockHTTPServerBuilder.getContext();
     RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
     RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-    requestExpectation.withExpectedURI("test", 2);
+    requestExpectation.withExpectedURI("test");
+    requestExpectation.willBeInvoked(2);
     requestExpectation.initialiseExpectationsForHandler(requestHandler);
     context.checking(mockHTTPServerBuilder.getExpectations());
     requestHandler.url("test");
@@ -67,7 +80,8 @@ public class RequestExpectationTest {
     Mockery context = mockHTTPServerBuilder.getContext();
     RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
     RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-    requestExpectation.withExpectedURI("test",2).withExpectedParam("param", "value");
+    requestExpectation.withExpectedURI("test").withExpectedParam("param", "value");
+    requestExpectation.willBeInvoked(2);
     requestExpectation.initialiseExpectationsForHandler(requestHandler);
     context.checking(mockHTTPServerBuilder.getExpectations());
     requestHandler.url("test");
@@ -142,7 +156,8 @@ public class RequestExpectationTest {
     Mockery context = mockHTTPServerBuilder.getContext();
     RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
     RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-    requestExpectation.withExpectedURI("test", 2);
+    requestExpectation.withExpectedURI("test");
+    requestExpectation.willBeInvoked(2);
     requestExpectation.initialiseExpectationsForHandler(requestHandler);
     context.checking(mockHTTPServerBuilder.getExpectations());
     requestHandler.url("test");
@@ -172,7 +187,8 @@ public class RequestExpectationTest {
     Mockery context = mockHTTPServerBuilder.getContext();
     RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
     RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-    requestExpectation.withExpectedURI("test", 2).withExpectedParam("param", "value");
+    requestExpectation.withExpectedURI("test").withExpectedParam("param", "value");
+    requestExpectation.willBeInvoked(2);
     requestExpectation.initialiseExpectationsForHandler(requestHandler);
     context.checking(mockHTTPServerBuilder.getExpectations());
     requestHandler.url("test");

@@ -10,7 +10,7 @@ public class RequestExpectation {
 
   private MockHTTPServerBuilder mockHTTPServerBuilder;
   private String uri;
-  private int count;
+  private int numberTimeExpectationMustBeMet =1;
   private String returnValue;
   private HashMap<String,String> params = new HashMap<String,String>();
   private int statusCodeReturned =200;
@@ -27,21 +27,7 @@ public class RequestExpectation {
    */
 
   public RequestExpectation withExpectedURI(String uri) {
-    withExpectedURI(uri,1);
-    return this;
-  }
-
-  /**
-   * This is the way u express a call to a resource say http://testserver:8080/resource/doSomthing
-   * example MockHTTPServerBuilder.createRequestExpectation().withExpectedURI("resource/doSomthing",2).getMockHTTPServerBuilder().build(8080);
-   * @param uri resource/doSomthing
-   * @param count the number of times this Expectation must be met
-   * @return returns this for chaining and readability
-   */
-
-  public RequestExpectation withExpectedURI(String uri,int count) {
-    this.uri = uri;
-    this.count = count;
+    this.uri=uri;
     return this;
   }
 
@@ -55,6 +41,14 @@ public class RequestExpectation {
    */
   public RequestExpectation withExpectedParam(String param, String value) {
     this.params.put(param,value);
+    return this;
+  }
+
+  /**
+   *
+   */
+  public RequestExpectation willBeInvoked(int numberTimeExpectationMustBeMet) {
+    this.numberTimeExpectationMustBeMet = numberTimeExpectationMustBeMet;
     return this;
   }
 
@@ -93,7 +87,7 @@ public class RequestExpectation {
 
   void initialiseExpectationsForHandler(RequestHandler requestHandler) {
     Expectations expectations = mockHTTPServerBuilder.getExpectations();
-    for (int executionCount =0 ;executionCount<count;executionCount++) {
+    for (int executionCount =0 ;executionCount< numberTimeExpectationMustBeMet;executionCount++) {
       if (uri!=null) {
         if (returnValue!=null) {
           expectations.oneOf(requestHandler).url(expectations.with(uri));
