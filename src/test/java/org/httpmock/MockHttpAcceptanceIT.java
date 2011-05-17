@@ -14,7 +14,7 @@ import java.net.Socket;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class MockHttpAcceptanceIntegrationTest {
+public class MockHttpAcceptanceIT {
     private final String testUri = "/service/doSomething";
     public final int port = 7666;
     private final String serverUrl = "http://localhost:" + port + "/";
