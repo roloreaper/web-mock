@@ -31,7 +31,8 @@ public class MockHTTPServerBuilder {
 
   public MockHTTPServer build(int port) throws IOException {
     setUpExpectations();
-    return MockHTTPServer.startServer(port, this.requestHandler,this.context);
+    MockHTTPServer mockHTTPServer = MockHTTPServer.startServer(port, this.requestHandler, this.context);
+    return mockHTTPServer;
   }
 
   private void setUpExpectations() {

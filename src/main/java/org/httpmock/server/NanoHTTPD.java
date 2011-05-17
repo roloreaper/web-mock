@@ -46,7 +46,7 @@ import java.util.*;
  * See the end of the source file for distribution license
  * (Modified BSD licence)
  */
-class NanoHTTPD
+abstract class NanoHTTPD
 {
 	// ==================================================
 	// API parts
@@ -63,119 +63,7 @@ class NanoHTTPD
 	 * @param header	Header entries, percent decoded
 	 * @return HTTP response, see class Response for details
 	 */
-	protected Response serve( String uri, String method, Properties header, Properties parms, Properties files )
-	{
-		System.out.println( method + " '" + uri + "' " );
-
-		Enumeration e = header.propertyNames();
-		while ( e.hasMoreElements())
-		{
-			String value = (String)e.nextElement();
-			System.out.println( "  HDR: '" + value + "' = '" +
-								header.getProperty( value ) + "'" );
-		}
-		e = parms.propertyNames();
-		while ( e.hasMoreElements())
-		{
-			String value = (String)e.nextElement();
-			System.out.println( "  PRM: '" + value + "' = '" +
-								parms.getProperty( value ) + "'" );
-		}
-		e = files.propertyNames();
-		while ( e.hasMoreElements())
-		{
-			String value = (String)e.nextElement();
-			System.out.println( "  UPLOADED: '" + value + "' = '" +
-								files.getProperty( value ) + "'" );
-		}
-
-		return serveFile( uri, header, new File("."), true );
-	}
-
-	/**
-	 * HTTP response.
-	 * Return one of these from serve().
-	 */
-	public class Response
-	{
-		/**
-		 * Default constructor: response = HTTP_OK, data = mime = 'null'
-		 */
-		public Response()
-		{
-			this.status = HTTPStatusCode.HTTP_OK.toString();
-		}
-
-		/**
-		 * Basic constructor.
-		 */
-		public Response( String status, String mimeType, InputStream data )
-		{
-			this.status = status;
-			this.mimeType = mimeType;
-			this.data = data;
-		}
-
-		/**
-		 * Convenience method that makes an InputStream out of
-		 * given text.
-		 */
-		public Response( String status, String mimeType, String txt )
-		{
-			this.status = status;
-			this.mimeType = mimeType;
-			try
-			{
-				this.data = new ByteArrayInputStream( txt.getBytes("UTF-8"));
-			}
-			catch ( java.io.UnsupportedEncodingException uee )
-			{
-				uee.printStackTrace();
-			}
-		}
-
-		/**
-		 * Adds given line to the header.
-		 */
-		public void addHeader( String name, String value )
-		{
-			header.put( name, value );
-		}
-
-		/**
-		 * HTTP status code after processing, e.g. "200 OK", HTTP_OK
-		 */
-		public String status;
-
-		/**
-		 * MIME type of content, e.g. "text/html"
-		 */
-		public String mimeType;
-
-		/**
-		 * Data of the response, may be null.
-		 */
-		public InputStream data;
-
-		/**
-		 * Headers for the HTTP response. Use addHeader()
-		 * to add lines.
-		 */
-		public Properties header = new Properties();
-	}
-
-	/**
-	 * Some HTTP response status codes
-	 */
-
-	/**
-	 * Common mime types for dynamic content
-	 */
-	public static final String
-		MIME_PLAINTEXT = "text/plain",
-		MIME_HTML = "text/html",
-		MIME_DEFAULT_BINARY = "application/octet-stream",
-		MIME_XML = "text/xml";
+	protected abstract Response  serve( String uri, String method, Properties header, Properties parms, Properties files ) ;
 
 	// ==================================================
 	// Socket & server code
@@ -185,7 +73,7 @@ class NanoHTTPD
 	 * Starts a HTTP server to given port.<p>
 	 * Throws an IOException if the socket is already in use
 	 */
-	public NanoHTTPD( int port ) throws IOException
+	NanoHTTPD( int port ) throws IOException
 	{
 		myTcpPort = port;
 		myServerSocket = new ServerSocket( myTcpPort );
@@ -220,46 +108,6 @@ class NanoHTTPD
 		catch ( InterruptedException e ) {}
 	}
 
-
-	/**
-	 * Starts as a standalone file server and waits for Enter.
-	 */
-	public static void main( String[] args )
-	{
-		System.out.println( "NanoHTTPD 1.21 (C) 2001,2005-2011 Jarno Elonen and (C) 2010 Konstantinos Togias\n" +
-							"(Command line options: [port] [--licence])\n" );
-
-		// Show licence if requested
-		int lopt = -1;
-		for ( int i=0; i<args.length; ++i )
-		if ( args[i].toLowerCase().endsWith( "licence" ))
-		{
-			lopt = i;
-			System.out.println( LICENCE + "\n" );
-			break;
-		}
-
-		// Change port if requested
-		int port = 80;
-		if ( args.length > 0 && lopt != 0 )
-			port = Integer.parseInt( args[0] );
-
-		try
-		{
-			new NanoHTTPD( port );
-		}
-		catch( IOException ioe )
-		{
-			System.err.println( "Couldn't start server:\n" + ioe );
-			System.exit( -1 );
-		}
-
-		System.out.println( "Now serving files in port " + port + " from \"" +
-							new File("").getAbsolutePath() + "\"" );
-		System.out.println( "Hit Enter to stop.\n" );
-
-		try { System.in.read(); } catch( Throwable t ) {}
-	}
 
 	/**
 	 * Handles one session, i.e. parses the HTTP request
@@ -418,7 +266,7 @@ class NanoHTTPD
 				if ( r == null )
 					sendError(HTTPStatusCode.HTTP_INTERNALERROR.toString(), "SERVER INTERNAL ERROR: Serve() returned a null response." );
 				else
-					sendResponse( r.status, r.mimeType, r.header, r.data );
+					sendResponse( r.getStatus(), r.getMimeType(), r.getHeader(), r.getData() );
 
 				in.close();
 				is.close();
@@ -717,7 +565,7 @@ class NanoHTTPD
 		 */
 		private void sendError( String status, String msg ) throws InterruptedException
 		{
-			sendResponse( status, MIME_PLAINTEXT, null, new ByteArrayInputStream( msg.getBytes()));
+			sendResponse( status, MimeType.MIME_PLAINTEXT.toString(), null, new ByteArrayInputStream( msg.getBytes()));
 			throw new InterruptedException();
 		}
 
@@ -817,7 +665,7 @@ class NanoHTTPD
 	/**
 	 * Serves file from homeDir and its' subdirectories (only).
 	 * Uses only URI, ignores all headers and HTTP parameters.
-	 */
+
 	public Response serveFile( String uri, Properties header, File homeDir,
 							   boolean allowDirectoryListing )
 	{
@@ -957,6 +805,7 @@ class NanoHTTPD
 			return new Response(HTTPStatusCode.HTTP_FORBIDDEN.toString(), MIME_PLAINTEXT, "FORBIDDEN: Reading file failed." );
 		}
 	}
+   */
 
 	/**
 	 * Hashtable mapping (String)FILENAME_EXTENSION -> (String)MIME_TYPE
