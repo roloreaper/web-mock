@@ -14,6 +14,6 @@ public class HTTPStatusCodeTest {
 
   @Test(expected = EnumConstantNotPresentException.class)
   public void testThatInstanceOfForCodeNotExistingThrowsException() {
-    HTTPStatusCode httpStatusCode = HTTPStatusCode.instanceOf(9000);
+    HTTPStatusCode.instanceOf(9000);
   }
 }

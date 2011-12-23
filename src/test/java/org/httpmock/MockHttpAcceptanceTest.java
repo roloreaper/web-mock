@@ -3,6 +3,7 @@ package org.httpmock;
 import com.meterware.httpunit.*;
 import org.httpmock.server.MockHTTPServer;
 import org.jmock.api.ExpectationError;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -13,8 +14,7 @@ import java.net.Socket;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-
-public class MockHttpAcceptanceIT {
+public class MockHttpAcceptanceTest {
     private final String testUri = "/service/doSomething";
     public final int port = 7666;
     private final String serverUrl = "http://localhost:" + port + "/";
