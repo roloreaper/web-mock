@@ -50,7 +50,7 @@ public enum HTTPStatusCode {
         return httpStatusCode;
       }
     }
-    throw new EnumConstantNotPresentException(HTTPStatusCode.class,"FOR " +code);
+    throw new EnumConstantNotPresentException(HTTPStatusCode.class,"for " +code);
   }
 
 
