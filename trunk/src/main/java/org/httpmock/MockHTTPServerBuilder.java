@@ -7,11 +7,11 @@ import org.jmock.Mockery;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MockHTTPServerBuilder {
 	private RequestHandler requestHandler;
-	private ArrayList<RequestExpectation> requestExpectations = new ArrayList<RequestExpectation>();
-	//private Expectations requestExpectations = new Expectations();
+	private List<RequestExpectation> requestExpectations = new ArrayList<RequestExpectation>();
 	private Mockery context;
 	private Expectations expectations;
 
@@ -31,8 +31,7 @@ public class MockHTTPServerBuilder {
 
 	public MockHTTPServer build(int port) throws IOException {
 		setUpExpectations();
-		MockHTTPServer mockHTTPServer = MockHTTPServer.startServer(port, this.requestHandler, this.context);
-		return mockHTTPServer;
+        return MockHTTPServer.startServer(port, this.requestHandler, this.context);
 	}
 
 	private void setUpExpectations() {

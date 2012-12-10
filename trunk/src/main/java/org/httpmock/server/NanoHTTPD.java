@@ -47,7 +47,16 @@ import java.util.*;
  * (Modified BSD licence)
  */
 abstract class NanoHTTPD {
-	// ==================================================
+    public static final String HEADER = "header";
+    public static final String PRE = "pre";
+    public static final String PARAMS = "params";
+    public static final int KB_8 = 8192;
+    public static final long DEFAULT_SIZE = 0x7FFFFFFFFFFFFFFFl;
+    public static final int READ_BODY_SIZE = 512;
+    public static final int TWO = 2;
+    public static final int FOUR = 4;
+    public static final int KB_2 = 2048;
+    // ==================================================
 	// API parts
 	// ==================================================
 
@@ -78,8 +87,9 @@ abstract class NanoHTTPD {
 		myThread = new Thread(new Runnable() {
 			public void run() {
 				try {
-					while (true)
+					while (true) {
 						new HTTPSession(myServerSocket.accept());
+                    }
 				} catch (IOException ioe) {
 				}
 			}
@@ -116,31 +126,32 @@ abstract class NanoHTTPD {
 		public void run() {
 			try {
 				InputStream is = mySocket.getInputStream();
-				if (is == null) return;
+				if (is == null)  {return; }
 
 				// Read the first 8192 bytes.
 				// The full header should fit in here.
 				// Apache's default header limit is 8KB.
-				int bufsize = 8192;
+				int bufsize = KB_8;
 				byte[] buf = new byte[bufsize];
 				int rlen = is.read(buf, 0, bufsize);
-				if (rlen <= 0) return;
+				if (rlen <= 0) {return;}
 
 				// Create a BufferedReader for parsing the header.
 				ByteArrayInputStream hbis = new ByteArrayInputStream(buf, 0, rlen);
 				BufferedReader hin = new BufferedReader(new InputStreamReader(hbis));
-				Properties pre = new Properties();
-				Properties parms = new Properties();
-				Properties header = new Properties();
+				//Properties pre = new Properties();
+				//Properties parms = new Properties();
+				//Properties header = new Properties();
 				Properties files = new Properties();
 
-				// Decode the header into parms and header java properties
-				decodeHeader(hin, pre, parms, header);
-				String method = pre.getProperty("method");
-				String uri = pre.getProperty("uri");
 
-				long size = 0x7FFFFFFFFFFFFFFFl;
-				String contentLength = header.getProperty("content-length");
+				// Decode the header into parms and header java properties
+				Map<String,Properties> headers =decodeHeader(hin);
+				String method = getPre(headers).getProperty("method");
+				String uri = getPre(headers).getProperty("uri");
+
+				long size = DEFAULT_SIZE;
+				String contentLength = getHeader(headers).getProperty("content-length");
 				if (contentLength != null) {
 					try {
 						size = Integer.parseInt(contentLength);
@@ -163,7 +174,7 @@ abstract class NanoHTTPD {
 
 				// Write the part of body already read to ByteArrayOutputStream f
 				ByteArrayOutputStream f = new ByteArrayOutputStream();
-				if (splitbyte < rlen) f.write(buf, splitbyte, rlen - splitbyte);
+				if (splitbyte < rlen) {f.write(buf, splitbyte, rlen - splitbyte);}
 
 				// While Firefox sends on the first read all the data fitting
 				// our buffer, Chrome and Opera sends only the headers even if
@@ -171,18 +182,21 @@ abstract class NanoHTTPD {
 				// out whether we have already consumed part of body, if we
 				// have reached the end of the data to be sent or we should
 				// expect the first byte of the body at the next read.
-				if (splitbyte < rlen)
+				if (splitbyte < rlen) {
 					size -= rlen - splitbyte + 1;
-				else if (!sbfound || size == 0x7FFFFFFFFFFFFFFFl)
+                }
+				else if (!sbfound || size == DEFAULT_SIZE) {
 					size = 0;
+                }
 
 				// Now read all the body and write it to f
-				buf = new byte[512];
+				buf = new byte[READ_BODY_SIZE];
 				while (rlen >= 0 && size > 0) {
-					rlen = is.read(buf, 0, 512);
+					rlen = is.read(buf, 0, READ_BODY_SIZE);
 					size -= rlen;
-					if (rlen > 0)
+					if (rlen > 0) {
 						f.write(buf, 0, rlen);
+                    }
 				}
 
 				// Get the raw body as a byte []
@@ -194,119 +208,154 @@ abstract class NanoHTTPD {
 
 				// If the method is POST, there may be parameters
 				// in data section, too, read it:
-				if (method.equalsIgnoreCase("POST")) {
-					String contentType = "";
-					String contentTypeHeader = header.getProperty("content-type");
-					if (contentTypeHeader == null) {
-						// Handle application/x-www-form-urlencoded
-						String postLine = "";
-						char pbuf[] = new char[512];
-						int read = in.read(pbuf);
-						while (read >= 0 && !postLine.endsWith("\r\n")) {
-							postLine += String.valueOf(pbuf, 0, read);
-							read = in.read(pbuf);
-						}
-						postLine = postLine.trim();
-						decodeParms(postLine, parms);
-					} else {
-						StringTokenizer st = new StringTokenizer(contentTypeHeader, "; ");
-						if (st.hasMoreTokens()) {
-							contentType = st.nextToken();
-						}
+                handelPost(files, headers, method, fbuf, in);
 
-						if (contentType.equalsIgnoreCase("multipart/form-data")) {
-							// Handle multipart/form-data
-							if (!st.hasMoreTokens())
-								sendError(HTTPStatusCode.HTTP_BADREQUEST.toString(), "BAD REQUEST: Content type is multipart/form-data but boundary missing. Usage: GET /example/file.html");
-							String boundaryExp = st.nextToken();
-							st = new StringTokenizer(boundaryExp, "=");
-							if (st.countTokens() != 2)
-								sendError(HTTPStatusCode.HTTP_BADREQUEST.toString(), "BAD REQUEST: Content type is multipart/form-data but boundary syntax error. Usage: GET /example/file.html");
-							st.nextToken();
-							String boundary = st.nextToken();
-
-							decodeMultipartData(boundary, fbuf, in, parms, files);
-						} else {
-							// Handle application/x-www-form-urlencoded
-							String postLine = "";
-							char pbuf[] = new char[512];
-							int read = in.read(pbuf);
-							while (read >= 0 && !postLine.endsWith("\r\n")) {
-								postLine += String.valueOf(pbuf, 0, read);
-								read = in.read(pbuf);
-							}
-							postLine = postLine.trim();
-							decodeParms(postLine, parms);
-						}
-					}
-				}
-
-				// Ok, now do the serve()
-				Response r = serve(uri, method, header, parms, files);
-				if (r == null)
-					sendError(HTTPStatusCode.HTTP_INTERNALERROR.toString(), "SERVER INTERNAL ERROR: Serve() returned a null response.");
-				else
-					sendResponse(r.getStatus(), r.getMimeType(), r.getHeader(), r.getData());
+                // Ok, now do the serve()
+                serveResponse(files, headers, method, uri);
 
 				in.close();
 				is.close();
 			} catch (IOException ioe) {
 				try {
 					sendError(HTTPStatusCode.HTTP_INTERNALERROR.toString(), "SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
-				} catch (Throwable t) {
+				} catch (Exception ignored) {
 				}
-			} catch (InterruptedException ie) {
+			} catch (InterruptedException ignored) {
 			}
 		}
+
+        private void handelPost(Properties files, Map<String, Properties> headers, String method, byte[] fbuf, BufferedReader in) throws IOException, InterruptedException {
+            if (method.equalsIgnoreCase("POST")) {
+                String contentType = "";
+                String contentTypeHeader = getHeader(headers).getProperty("content-type");
+                if (contentTypeHeader == null) {
+                    handelurlEncodeParametes(headers, in);
+                } else {
+                    StringTokenizer st = new StringTokenizer(contentTypeHeader, "; ");
+                    if (st.hasMoreTokens()) {
+                        contentType = st.nextToken();
+                    }
+
+                    if (contentType.equalsIgnoreCase("multipart/form-data")) {
+                        // Handle multipart/form-data
+                        handleMultiPartFormData(files, headers, fbuf, in, st);
+                    } else {
+                        // Handle application/x-www-form-urlencoded
+                        handelurlEncodeParametes(headers, in);
+                    }
+                }
+            }
+        }
+
+        private void handleMultiPartFormData(Properties files, Map<String, Properties> headers, byte[] fbuf, BufferedReader in, StringTokenizer st) throws InterruptedException {
+            if (!st.hasMoreTokens()) {
+                sendError(HTTPStatusCode.HTTP_BADREQUEST.toString(), "BAD REQUEST: Content type is multipart/form-data but boundary missing. Usage: GET /example/file.html");
+            }
+            String boundaryExp = st.nextToken();
+            StringTokenizer secondPart = new StringTokenizer(boundaryExp, "=");
+            if (secondPart.countTokens() != TWO) {
+                sendError(HTTPStatusCode.HTTP_BADREQUEST.toString(), "BAD REQUEST: Content type is multipart/form-data but boundary syntax error. Usage: GET /example/file.html");
+            }
+            secondPart.nextToken();
+            String boundary = secondPart.nextToken();
+
+            decodeMultipartData(boundary, fbuf, in, getParams(headers), files);
+        }
+
+        private void handelurlEncodeParametes(Map<String, Properties> headers, BufferedReader in) throws IOException, InterruptedException {
+            String postLine = "";
+            char pbuf[] = new char[READ_BODY_SIZE];
+            int read = in.read(pbuf);
+            while (read >= 0 && !postLine.endsWith("\r\n")) {
+                postLine += String.valueOf(pbuf, 0, read);
+                read = in.read(pbuf);
+            }
+            postLine = postLine.trim();
+            getParams(headers).putAll(decodeParms(postLine));
+        }
+
+        private void serveResponse(Properties files, Map<String, Properties> headers, String method, String uri) throws InterruptedException {
+            Response r = serve(uri, method, getHeader(headers), getParams(headers), files);
+            if (r == null) {
+                sendError(HTTPStatusCode.HTTP_INTERNALERROR.toString(), "SERVER INTERNAL ERROR: Serve() returned a null response.");
+            }
+            else {
+                sendResponse(r.getStatus(), r.getMimeType(), r.getHeader(), r.getData());
+            }
+        }
+
+        private Properties getHeader(Map<String, Properties> headers) {
+            return getOrCreateIfNessasary(headers,HEADER);
+        }
+
+        private Properties getPre(Map<String, Properties> propertiesMap) {
+            return getOrCreateIfNessasary(propertiesMap,PRE);
+        }
 
 		/**
 		 * Decodes the sent headers and loads the data into
 		 * java Properties' key - value pairs
 		 */
-		private void decodeHeader(BufferedReader in, Properties pre, Properties parms, Properties header)
+		private Map<String, Properties> decodeHeader(BufferedReader in)
 				throws InterruptedException {
-			try {
+            Map<String, Properties> propertiesMap= new HashMap<String, Properties>();
+            try {
 				// Read the request line
 				String inLine = in.readLine();
-				if (inLine == null) return;
+				if (inLine == null) {return propertiesMap;}
 				StringTokenizer st = new StringTokenizer(inLine);
-				if (!st.hasMoreTokens())
+				if (!st.hasMoreTokens()) {
 					sendError(HTTPStatusCode.HTTP_BADREQUEST.toString(), "BAD REQUEST: Syntax error. Usage: GET /example/file.html");
-
+                }
 				String method = st.nextToken();
-				pre.put("method", method);
+				getPre(propertiesMap).put("method", method);
 
-				if (!st.hasMoreTokens())
+				if (!st.hasMoreTokens()) {
 					sendError(HTTPStatusCode.HTTP_BADREQUEST.toString(), "BAD REQUEST: Missing URI. Usage: GET /example/file.html");
+                }
 
 				String uri = st.nextToken();
 
 				// Decode parameters from the URI
-				int qmi = uri.indexOf('?');
-				if (qmi >= 0) {
-					decodeParms(uri.substring(qmi + 1), parms);
-					uri = decodePercent(uri.substring(0, qmi));
-				} else uri = decodePercent(uri);
-
-				// If there's another token, it's protocol version,
-				// followed by HTTP headers. Ignore version but parse headers.
-				// NOTE: this now forces header names lowercase since they are
-				// case insensitive and vary by client.
-				if (st.hasMoreTokens()) {
-					String line = in.readLine();
-					while (line != null && line.trim().length() > 0) {
-						int p = line.indexOf(':');
-						if (p >= 0)
-							header.put(line.substring(0, p).trim().toLowerCase(), line.substring(p + 1).trim());
-						line = in.readLine();
-					}
-				}
-
-				pre.put("uri", uri);
+                uri = decodeParametersFromURI(propertiesMap, uri);
+                // If there's another token, it's protocol version,
+                // followed by HTTP headers. Ignore version but parse headers.
+                // NOTE: this now forces header names lowercase since they are
+                // case insensitive and vary by client.
+                decodeProtocolVersionIfNessasary(in, propertiesMap, st);
+                getPre(propertiesMap).put("uri", uri);
 			} catch (IOException ioe) {
 				sendError(HTTPStatusCode.HTTP_INTERNALERROR.toString(), "SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
 			}
-		}
+            return propertiesMap;
+        }
+
+        private void decodeProtocolVersionIfNessasary(BufferedReader in, Map<String, Properties> propertiesMap, StringTokenizer st) throws IOException {
+
+            if (st.hasMoreTokens()) {
+                String line = in.readLine();
+                while (line != null && line.trim().length() > 0) {
+                    int p = line.indexOf(':');
+                    if (p >= 0) {
+                        getHeader(propertiesMap).put(line.substring(0, p).trim().toLowerCase(), line.substring(p + 1).trim());
+                    }
+                    line = in.readLine();
+                }
+            }
+        }
+
+        private String decodeParametersFromURI(Map<String, Properties> propertiesMap, String uri) throws InterruptedException {
+            int qmi = uri.indexOf('?');
+            if (qmi >= 0) {
+                getParams(propertiesMap).putAll(decodeParms(uri.substring(qmi + 1)));
+                uri = decodePercent(uri.substring(0, qmi));
+            } else uri = decodePercent(uri);
+            return uri;
+        }
+
+        private Properties getParams(Map<String, Properties> propertiesMap) {
+            return getOrCreateIfNessasary(propertiesMap,PARAMS);
+        }
 
 		/**
 		 * Decodes the Multipart Body data and put it
@@ -319,15 +368,17 @@ abstract class NanoHTTPD {
 				int boundarycount = 1;
 				String mpline = in.readLine();
 				while (mpline != null) {
-					if (mpline.indexOf(boundary) == -1)
+					if (mpline.indexOf(boundary) == -1) {
 						sendError(HTTPStatusCode.HTTP_BADREQUEST.toString(), "BAD REQUEST: Content type is multipart/form-data but next chunk does not start with boundary. Usage: GET /example/file.html");
+                    }
 					boundarycount++;
 					Properties item = new Properties();
 					mpline = in.readLine();
 					while (mpline != null && mpline.trim().length() > 0) {
 						int p = mpline.indexOf(':');
-						if (p != -1)
+						if (p != -1) {
 							item.put(mpline.substring(0, p).trim().toLowerCase(), mpline.substring(p + 1).trim());
+                        }
 						mpline = in.readLine();
 					}
 					if (mpline != null) {
@@ -340,29 +391,33 @@ abstract class NanoHTTPD {
 						while (st.hasMoreTokens()) {
 							String token = st.nextToken();
 							int p = token.indexOf('=');
-							if (p != -1)
+							if (p != -1) {
 								disposition.put(token.substring(0, p).trim().toLowerCase(), token.substring(p + 1).trim());
+                            }
 						}
 						String pname = disposition.getProperty("name");
 						pname = pname.substring(1, pname.length() - 1);
 
 						String value = "";
 						if (item.getProperty("content-type") == null) {
-							while (mpline != null && mpline.indexOf(boundary) == -1) {
+							while (mpline != null && !mpline.contains(boundary)) {
 								mpline = in.readLine();
 								if (mpline != null) {
 									int d = mpline.indexOf(boundary);
-									if (d == -1)
+									if (d == -1) {
 										value += mpline;
-									else
+                                    }
+									else {
 										value += mpline.substring(0, d - 2);
+                                    }
 								}
 							}
 						} else {
-							if (boundarycount > bpositions.length)
+							if (boundarycount > bpositions.length) {
 								sendError(HTTPStatusCode.HTTP_INTERNALERROR.toString(), "Error processing request");
+                            }
 							int offset = stripMultipartHeaders(fbuf, bpositions[boundarycount - 2]);
-							String path = saveTmpFile(fbuf, offset, bpositions[boundarycount - 1] - offset - 4);
+							String path = saveTmpFile(fbuf, offset, bpositions[boundarycount - 1] - offset - FOUR);
 							files.put(pname, path);
 							value = disposition.getProperty("filename");
 							value = value.substring(1, value.length() - 1);
@@ -387,11 +442,12 @@ abstract class NanoHTTPD {
 			Vector matchbytes = new Vector();
 			for (int i = 0; i < b.length; i++) {
 				if (b[i] == boundary[matchcount]) {
-					if (matchcount == 0)
+					if (matchcount == 0) {
 						matchbyte = i;
+                    }
 					matchcount++;
 					if (matchcount == boundary.length) {
-						matchbytes.addElement(new Integer(matchbyte));
+						matchbytes.addElement(Integer.valueOf(matchbyte));
 						matchcount = 0;
 						matchbyte = -1;
 					}
@@ -417,15 +473,25 @@ abstract class NanoHTTPD {
 			String path = "";
 			if (len > 0) {
 				String tmpdir = System.getProperty("java.io.tmpdir");
+                OutputStream fileStream = null;
 				try {
 					File temp = File.createTempFile("NanoHTTPD", "", new File(tmpdir));
-					OutputStream fstream = new FileOutputStream(temp);
-					fstream.write(b, offset, len);
-					fstream.close();
+                    fileStream = new FileOutputStream(temp);
+					fileStream.write(b, offset, len);
+					fileStream.close();
 					path = temp.getAbsolutePath();
 				} catch (Exception e) { // Catch exception if any
 					System.err.println("Error: " + e.getMessage());
 				}
+                finally {
+                    if (fileStream!=null) {
+                        try {
+                            fileStream.close();
+                        } catch (IOException ignored) {
+
+                        }
+                    }
+                }
 			}
 			return path;
 		}
@@ -438,8 +504,9 @@ abstract class NanoHTTPD {
 		private int stripMultipartHeaders(byte[] b, int offset) {
 			int i = 0;
 			for (i = offset; i < b.length; i++) {
-				if (b[i] == '\r' && b[++i] == '\n' && b[++i] == '\r' && b[++i] == '\n')
+				if (b[i] == '\r' && b[++i] == '\n' && b[++i] == '\r' && b[++i] == '\n') {
 					break;
+                }
 			}
 			return i + 1;
 		}
@@ -480,19 +547,21 @@ abstract class NanoHTTPD {
 		 * identical keys due to the simplicity of Properties -- if you need multiples,
 		 * you might want to replace the Properties with a Hashtable of Vectors or such.
 		 */
-		private void decodeParms(String parms, Properties p)
+		private Properties decodeParms(String parms)
 				throws InterruptedException {
-			if (parms == null)
-				return;
+            Properties p = new Properties();
 
 			StringTokenizer st = new StringTokenizer(parms, "&");
 			while (st.hasMoreTokens()) {
 				String e = st.nextToken();
 				int sep = e.indexOf('=');
-				if (sep >= 0)
+				if (sep >= 0) {
 					p.put(decodePercent(e.substring(0, sep)).trim(),
 							decodePercent(e.substring(sep + 1)));
+                }
 			}
+
+            return p;
 		}
 
 		/**
@@ -509,18 +578,21 @@ abstract class NanoHTTPD {
 		 */
 		private void sendResponse(String status, String mime, Properties header, InputStream data) {
 			try {
-				if (status == null)
+				if (status == null) {
 					throw new Error("sendResponse(): Status can't be null.");
+                }
 
 				OutputStream out = mySocket.getOutputStream();
 				PrintWriter pw = new PrintWriter(out);
 				pw.print("HTTP/1.0 " + status + " \r\n");
 
-				if (mime != null)
+				if (mime != null) {
 					pw.print("Content-Type: " + mime + "\r\n");
+                }
 
-				if (header == null || header.getProperty("Date") == null)
+				if (header == null || header.getProperty("Date") == null) {
 					pw.print("Date: " + gmtFrmt.format(new Date()) + "\r\n");
+                }
 
 				if (header != null) {
 					Enumeration e = header.keys();
@@ -530,34 +602,45 @@ abstract class NanoHTTPD {
 						pw.print(key + ": " + value + "\r\n");
 					}
 				}
-
 				pw.print("\r\n");
 				pw.flush();
-
-				if (data != null) {
-					byte[] buff = new byte[2048];
-					while (true) {
-						int read = data.read(buff, 0, 2048);
-						if (read <= 0)
-							break;
-						out.write(buff, 0, read);
-					}
-				}
-				out.flush();
+                writeDataIfNessasary(data, out);
+                out.flush();
 				out.close();
-				if (data != null)
+				if (data != null) {
 					data.close();
+                }
 			} catch (IOException ioe) {
 				// Couldn't write? No can do.
 				try {
 					mySocket.close();
-				} catch (Throwable t) {
+				} catch (Exception ignored) {
 				}
 			}
 		}
 
-		private Socket mySocket;
+        private void writeDataIfNessasary(InputStream data, OutputStream out) throws IOException {
+            if (data != null) {
+                byte[] buff = new byte[KB_2];
+                while (true) {
+                    int read = data.read(buff, 0, KB_2);
+                    if (read <= 0) {
+                        break;
+}
+                    out.write(buff, 0, read);
+                }
+            }
+        }
+
+        private Socket mySocket;
 	}
+
+    private Properties getOrCreateIfNessasary(Map<String, Properties> propertiesMap, String key) {
+        if (propertiesMap.get(key)==null) {
+            propertiesMap.put(key,new Properties());
+        }
+        return propertiesMap.get(key);
+    }
 
 	/**
 	 * URL-encodes everything between "/"-characters.
@@ -763,7 +846,11 @@ abstract class NanoHTTPD {
 			theMimeTypes.put(st.nextToken(), st.nextToken());
 	}
 
-	/**
+    public int getMyTcpPort() {
+        return myTcpPort;
+    }
+
+    /**
 	 * GMT date formatter
 	 */
 	private static java.text.SimpleDateFormat gmtFrmt;

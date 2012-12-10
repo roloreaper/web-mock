@@ -4,10 +4,11 @@ import org.jmock.Mockery;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class MockHTTPServer extends NanoHTTPD {
-	private static HashMap<Integer, MockHTTPServer> mockServers = new HashMap<Integer, MockHTTPServer>();
+	private static Map<Integer, MockHTTPServer> mockServers = new HashMap<Integer, MockHTTPServer>();
 	private RequestHandler requestHandler;
 	private Mockery context;
 	private Throwable thrown;
@@ -61,12 +62,16 @@ public class MockHTTPServer extends NanoHTTPD {
 
 	public void assertThatAllExpectationsAreMet() {
 		stop();
-		mockServers.remove(this);
+		releaseServerInstance();
 		if (thrown != null) {
 			throw new AssertionError(thrown);
 		}
 		context.assertIsSatisfied();
 	}
+
+    private void releaseServerInstance() {
+        mockServers.remove(this.getMyTcpPort());
+    }
 
 
 }
