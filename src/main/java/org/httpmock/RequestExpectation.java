@@ -5,6 +5,7 @@ import org.httpmock.server.RequestHandler;
 import org.jmock.Expectations;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class RequestExpectation {
 
@@ -12,8 +13,8 @@ public class RequestExpectation {
 	private String uri;
 	private int numberTimeExpectationMustBeMet = 1;
 	private String returnValue;
-	private HashMap<String, String> params = new HashMap<String, String>();
-	private int statusCodeReturned = 200;
+	private Map<String, String> params = new HashMap<String, String>();
+	private int statusCodeReturned = HTTPStatusCode.HTTP_OK.getCode();
 
 	RequestExpectation(MockHTTPServerBuilder mockHTTPServerBuilder) {
 		this.mockHTTPServerBuilder = mockHTTPServerBuilder;
@@ -63,7 +64,7 @@ public class RequestExpectation {
 	 * @return returns this for chaining and readability
 	 */
 	public RequestExpectation willReturn(String returnValue) {
-		return willReturn(returnValue, 200);
+		return willReturn(returnValue, HTTPStatusCode.HTTP_OK.getCode());
 	}
 
 	/**
