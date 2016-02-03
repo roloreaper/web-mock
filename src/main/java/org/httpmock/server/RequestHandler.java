@@ -8,7 +8,7 @@ public interface RequestHandler {
 
 	void param(String param, String value);
 
-	Object returnValue();
+	String returnValue();
 
-	String getResponseStatus();
+	int getResponseStatus();
 }

@@ -124,7 +124,7 @@ public class RequestExpectationTest {
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");
 		requestHandler.returnValue();
-		assertThat(requestHandler.getResponseStatus(), is(HTTPStatusCode.HTTP_BADREQUEST.toString()));
+		assertThat(requestHandler.getResponseStatus(), is(HTTPStatusCode.HTTP_BADREQUEST.getCode()));
 		context.assertIsSatisfied();
 
 	}

@@ -106,7 +106,7 @@ public class RequestExpectation {
 				}
 
 				expectations.oneOf(requestHandler).getResponseStatus();
-				expectations.will(expectations.returnValue(HTTPStatusCode.instanceOf(statusCodeReturned).toString()));
+				expectations.will(expectations.returnValue(statusCodeReturned));
 
 			}
 
