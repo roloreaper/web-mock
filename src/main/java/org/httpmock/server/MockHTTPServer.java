@@ -2,6 +2,7 @@ package org.httpmock.server;
 
 import fi.iki.elonen.NanoHTTPD;
 import org.jmock.Mockery;
+import org.omg.IOP.TAG_JAVA_CODEBASE;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,11 +33,18 @@ public class MockHTTPServer extends NanoHTTPD {
 		if (currentServer == null) {
 			currentServer = new MockHTTPServer(port, requestHandler, context);
 			mockServers.put(port, currentServer);
+			currentServer.start();
 		} else {
-			currentServer.stop();
-			mockServers.put(port, new MockHTTPServer(port, requestHandler, context));
+			if (currentServer.isAlive()) {
+				throw new RuntimeException("Server is alreadyRunning");
+			}
+			if (currentServer.wasStarted()) {
+				throw new RuntimeException("Server been started");
+			}
+
+				currentServer.start();
 		}
-        currentServer.start();
+
 		while (!currentServer.isAlive()) {
 			try {
 				Thread.sleep(1000);
@@ -105,13 +113,18 @@ public class MockHTTPServer extends NanoHTTPD {
 
 	public void assertThatAllExpectationsAreMet() {
 		stop();
-		while (this.isAlive()) {
+		boolean isAlive = true;
+		while (isAlive) {
+			System.out.println("this.isAlive() = " + this.isAlive());
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			isAlive = this.isAlive();
+
 		}
+
 		releaseServerInstance();
 		if (thrown != null) {
 			throw new AssertionError(thrown);
