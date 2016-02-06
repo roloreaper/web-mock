@@ -11,4 +11,6 @@ public interface RequestHandler {
 	String returnValue();
 
 	int getResponseStatus();
+
+	void bodyMatching(String body);
 }

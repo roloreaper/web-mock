@@ -6,6 +6,8 @@ import org.jmock.Mockery;
 import org.jmock.api.ExpectationError;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -25,6 +27,24 @@ public class RequestExpectationTest {
 		context.assertIsSatisfied();
 
 
+	}
+
+	@Test
+	public void testMatcher() {
+		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+		Mockery context = mockHTTPServerBuilder.getContext();
+		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+		requestExpectation.withExpectedURI("test");
+		requestExpectation.withPOSTBodyMatching(containsString("BOB"));
+		requestExpectation.initialiseExpectationsForHandler(requestHandler);
+		context.checking(mockHTTPServerBuilder.getExpectations());
+		requestHandler.url("test");
+		requestHandler.returnValue();
+		requestHandler.getResponseStatus();
+		requestHandler.bodyMatching("HOHBOBBO");
+
+		context.assertIsSatisfied();
 	}
 
 	@Test

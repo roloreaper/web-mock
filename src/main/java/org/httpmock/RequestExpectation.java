@@ -1,5 +1,6 @@
 package org.httpmock;
 
+import org.hamcrest.Matcher;
 import org.httpmock.server.HTTPStatusCode;
 import org.httpmock.server.RequestHandler;
 import org.jmock.Expectations;
@@ -15,9 +16,17 @@ public class RequestExpectation {
 	private String returnValue;
 	private Map<String, String> params = new HashMap<String, String>();
 	private int statusCodeReturned = HTTPStatusCode.HTTP_OK.getCode();
+	private Matcher<String> matcher;
+	private String method = "GET";
 
 	RequestExpectation(MockHTTPServerBuilder mockHTTPServerBuilder) {
 		this.mockHTTPServerBuilder = mockHTTPServerBuilder;
+	}
+
+	public RequestExpectation withPOSTBodyMatching(Matcher<String> matcher) {
+		this.method="POST";
+		this.matcher = matcher;
+		return this;
 	}
 
 	/**
@@ -44,6 +53,16 @@ public class RequestExpectation {
 	 */
 	public RequestExpectation withExpectedParam(String param, String value) {
 		this.params.put(param, value);
+		return this;
+	}
+
+	/**
+	 *
+	 * @param params Map of expected parameters where the first is the Parameter Name the second the value
+	 * @return returns this for chaining and readability;
+	 */
+	public RequestExpectation withExpectedParameters(Map<String, String> params) {
+		this.params.putAll(params);
 		return this;
 	}
 
@@ -95,18 +114,20 @@ public class RequestExpectation {
 		Expectations expectations = mockHTTPServerBuilder.getExpectations();
 		for (int executionCount = 0; executionCount < numberTimeExpectationMustBeMet; executionCount++) {
 			if (uri != null) {
+				expectations.oneOf(requestHandler).url(expectations.with(uri));
 				if (returnValue != null) {
-					expectations.oneOf(requestHandler).url(expectations.with(uri));
 					expectations.oneOf(requestHandler).returnValue();
 					expectations.will(expectations.returnValue(returnValue));
 
 				} else {
-					expectations.oneOf(requestHandler).url(expectations.with(uri));
 					expectations.oneOf(requestHandler).returnValue();
 				}
 
 				expectations.oneOf(requestHandler).getResponseStatus();
 				expectations.will(expectations.returnValue(statusCodeReturned));
+				if (matcher!=null) {
+					expectations.oneOf(requestHandler).bodyMatching(expectations.with(matcher));
+				}
 
 			}
 
