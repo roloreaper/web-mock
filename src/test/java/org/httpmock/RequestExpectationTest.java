@@ -1,6 +1,5 @@
 package org.httpmock;
 
-import org.httpmock.server.HTTPStatusCode;
 import org.httpmock.server.RequestHandler;
 import org.jmock.Mockery;
 import org.jmock.api.ExpectationError;
@@ -138,12 +137,12 @@ public class RequestExpectationTest {
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
 		requestExpectation.withExpectedURI("test");
-		requestExpectation.willReturn("", HTTPStatusCode.HTTP_BADREQUEST.getCode());
+		requestExpectation.willReturn("", 400);
 		requestExpectation.initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");
 		requestHandler.returnValue();
-		assertThat(requestHandler.getResponseStatus(), is(HTTPStatusCode.HTTP_BADREQUEST.getCode()));
+		assertThat(requestHandler.getResponseStatus(), is(400));
 		context.assertIsSatisfied();
 
 	}
@@ -243,7 +242,7 @@ public class RequestExpectationTest {
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
 		requestExpectation.withExpectedURI("test");
-		requestExpectation.willReturn("", HTTPStatusCode.HTTP_BADREQUEST.getCode());
+		requestExpectation.willReturn("", 400);
 		requestExpectation.initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");

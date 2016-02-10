@@ -1,7 +1,6 @@
 package org.httpmock;
 
 import org.hamcrest.Matcher;
-import org.httpmock.server.HTTPStatusCode;
 import org.httpmock.server.RequestHandler;
 import org.jmock.Expectations;
 
@@ -15,7 +14,7 @@ public class RequestExpectation {
 	private int numberTimeExpectationMustBeMet = 1;
 	private String returnValue;
 	private Map<String, String> params = new HashMap<String, String>();
-	private int statusCodeReturned = HTTPStatusCode.HTTP_OK.getCode();
+	private int statusCodeReturned = 200;
 	private Matcher<String> matcher;
 	private String method = "GET";
 
@@ -83,7 +82,7 @@ public class RequestExpectation {
 	 * @return returns this for chaining and readability
 	 */
 	public RequestExpectation willReturn(String returnValue) {
-		return willReturn(returnValue, HTTPStatusCode.HTTP_OK.getCode());
+		return willReturn(returnValue, 200);
 	}
 
 	/**
