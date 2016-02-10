@@ -252,4 +252,36 @@ public class RequestExpectationTest {
 		context.assertIsSatisfied();
 
 	}
+
+	@Test
+	public void testUsingMatcher() throws Exception {
+		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+		Mockery context = mockHTTPServerBuilder.getContext();
+		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+		requestExpectation.withExpectedURI("/bob").withPOSTBodyMatching(containsString("Rowland")).initialiseExpectationsForHandler(requestHandler);
+		context.checking(mockHTTPServerBuilder.getExpectations());
+		requestHandler.url("/bob");
+		requestHandler.returnValue();
+		requestHandler.getResponseStatus();
+		requestHandler.bodyMatching("YesRowland HahahahaRowlansadalksdjlakjd");
+		context.assertIsSatisfied();
+
+	}
+
+	@Test(	expected = ExpectationError.class)
+	public void testUsingMatcherNotMatching() throws Exception {
+		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+		Mockery context = mockHTTPServerBuilder.getContext();
+		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+		requestExpectation.withExpectedURI("/bob").withPOSTBodyMatching(containsString("Samual")).initialiseExpectationsForHandler(requestHandler);
+		context.checking(mockHTTPServerBuilder.getExpectations());
+		requestHandler.url("/bob");
+		requestHandler.returnValue();
+		requestHandler.getResponseStatus();
+		requestHandler.bodyMatching("YesRowland HahahahaRowlansadalksdjlakjd");
+		context.assertIsSatisfied();
+
+	}
 }
