@@ -1,7 +1,6 @@
 package org.httpmock;
 
 import com.meterware.httpunit.*;
-import com.sun.xml.internal.ws.encoding.ContentType;
 import org.httpmock.server.MockHTTPServer;
 import org.jmock.api.ExpectationError;
 import org.junit.Ignore;
