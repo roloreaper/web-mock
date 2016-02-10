@@ -23,7 +23,7 @@ public class RequestExpectation {
 		this.mockHTTPServerBuilder = mockHTTPServerBuilder;
 	}
 
-	public RequestExpectation withPOSTBodyMatching(Matcher<String> matcher) {
+	public RequestExpectation withBodyMatching(Matcher<String> matcher) {
 		this.method="POST";
 		this.matcher = matcher;
 		return this;

@@ -7,7 +7,6 @@ import org.jmock.api.ExpectationError;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -36,7 +35,7 @@ public class RequestExpectationTest {
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
 		requestExpectation.withExpectedURI("test");
-		requestExpectation.withPOSTBodyMatching(containsString("BOB"));
+		requestExpectation.withBodyMatching(containsString("BOB"));
 		requestExpectation.initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");
@@ -259,7 +258,7 @@ public class RequestExpectationTest {
 		Mockery context = mockHTTPServerBuilder.getContext();
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("/bob").withPOSTBodyMatching(containsString("Rowland")).initialiseExpectationsForHandler(requestHandler);
+		requestExpectation.withExpectedURI("/bob").withBodyMatching(containsString("Rowland")).initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("/bob");
 		requestHandler.returnValue();
@@ -275,7 +274,7 @@ public class RequestExpectationTest {
 		Mockery context = mockHTTPServerBuilder.getContext();
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("/bob").withPOSTBodyMatching(containsString("Samual")).initialiseExpectationsForHandler(requestHandler);
+		requestExpectation.withExpectedURI("/bob").withBodyMatching(containsString("Samual")).initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("/bob");
 		requestHandler.returnValue();

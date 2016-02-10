@@ -64,9 +64,11 @@ public class MockHTTPServer extends NanoHTTPD {
     @Override
     public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
         if (session.getMethod().equals(Method.POST)) {
-            return serve(session.getUri(), session.getMethod(), session.getHeaders(), getBodyParameters(session));
+			Map<String, String> parameters = getBodyParameters(session);
+			String body = parameters.get("postData");
+			return serve(session.getUri(), session.getMethod(), session.getHeaders(), session.getParms(),body);
         }
-        return serve(session.getUri(),session.getMethod(),session.getHeaders(),session.getParms());
+        return serve(session.getUri(),session.getMethod(),session.getHeaders(),session.getParms(),"");
     }
 
     private Map<String, String> getBodyParameters(IHTTPSession session) {
@@ -78,16 +80,21 @@ public class MockHTTPServer extends NanoHTTPD {
         } catch (ResponseException e) {
             e.printStackTrace();
         }
-        return session.getParms();
+        return stuff;
     }
 
 
 
-    private NanoHTTPD.Response serve(String uri, Method method, Map<String,String> headers, Map<String,String> params) {
+    private NanoHTTPD.Response serve(String uri, Method method, Map<String,String> headers, Map<String,String> params,String body) {
 		try {
 			requestHandler.url(uri);
 			for (String param : params.keySet()) {
 				requestHandler.param(param, params.get(param));
+			}
+			if (body!=null) {
+				if (method.equals(Method.POST)) {
+					requestHandler.bodyMatching(body);
+				}
 			}
             Response response = NanoHTTPD.newFixedLengthResponse(getStatus(requestHandler.getResponseStatus()), null, requestHandler.returnValue().toString());
             return response;

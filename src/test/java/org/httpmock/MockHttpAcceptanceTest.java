@@ -1,14 +1,17 @@
 package org.httpmock;
 
 import com.meterware.httpunit.*;
+import com.sun.xml.internal.ws.encoding.ContentType;
 import org.httpmock.server.MockHTTPServer;
 import org.jmock.api.ExpectationError;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -34,6 +37,19 @@ public class MockHttpAcceptanceTest {
 		GetMethodWebRequest getMethodWebRequest = new GetMethodWebRequest(serverUrl + testUri);
 		WebConversation wc = new WebConversation();
 		wc.getResponse(getMethodWebRequest);
+		server.assertThatAllExpectationsAreMet();
+	}
+
+	@Test
+	public void shouldHandlesGetWebRequestURIAndMatcherBody() throws IOException, SAXException {
+		MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
+		builder.createNewExpectation().withExpectedURI(testUri).withBodyMatching(containsString("bob"));
+
+		MockHTTPServer server = builder.build(port);
+		byte[] buff ="bob".getBytes();
+		PostMethodWebRequest postMethodWebRequest = new PostMethodWebRequest(serverUrl + testUri,new ByteArrayInputStream(buff), "text/plain");
+		WebConversation wc = new WebConversation();
+		wc.getResponse(postMethodWebRequest);
 		server.assertThatAllExpectationsAreMet();
 	}
 
