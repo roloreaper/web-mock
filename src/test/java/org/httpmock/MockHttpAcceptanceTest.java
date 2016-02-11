@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+@Ignore
 public class MockHttpAcceptanceTest {
 	private final String testUri = "/service/doSomething";
 	public final int port = 7666;
