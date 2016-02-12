@@ -4,12 +4,13 @@ import org.httpmock.server.MockHTTPServer;
 import org.httpmock.server.RequestHandler;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.internal.ExpectationBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MockHTTPServerBuilder {
+public class MockHTTPServerBuilder implements HTTPServerBuilder<MockHTTPServer> {
 	private RequestHandler requestHandler;
 	private List<RequestExpectation> requestExpectations = new ArrayList<RequestExpectation>();
 	private Mockery context;
@@ -21,20 +22,14 @@ public class MockHTTPServerBuilder {
 		this.requestHandler = context.mock(RequestHandler.class);
 	}
 
-	/**
-	 * This is used to Start the Http Server with the Configured Expectation on the port specified
-	 *
-	 * @param port eg 8080 for normal tomcat emulation
-	 * @return The Started MockHTTPServer instance;
-	 * @throws IOException if the Port is in use by other processes
-	 */
+
 
 	public MockHTTPServer build(int port) throws IOException {
 		setUpExpectations();
         return MockHTTPServer.startServer(port, this.requestHandler, this.context);
 	}
 
-	private void setUpExpectations() {
+	public void setUpExpectations() {
 
 		for (RequestExpectation requestExpectation : requestExpectations) {
 			requestExpectation.initialiseExpectationsForHandler(requestHandler);
@@ -64,7 +59,7 @@ public class MockHTTPServerBuilder {
 		return context;
 	}
 
-	Expectations getExpectations() {
+	public ExpectationBuilder getExpectations() {
 		return expectations;
 	}
 

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class RequestExpectation {
 
-	private MockHTTPServerBuilder mockHTTPServerBuilder;
+	private HTTPServerBuilder mockHTTPServerBuilder;
 	private String uri;
 	private int numberTimeExpectationMustBeMet = 1;
 	private String returnValue;
@@ -105,7 +105,7 @@ public class RequestExpectation {
 	 * @return will return the mockHTTPServerBuilder
 	 */
 
-	public MockHTTPServerBuilder getMockHTTPServerBuilder() {
+	public HTTPServerBuilder geHTTPServerBuilder() {
 		return mockHTTPServerBuilder;
 	}
 

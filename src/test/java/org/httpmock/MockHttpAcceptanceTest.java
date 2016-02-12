@@ -57,7 +57,8 @@ public class MockHttpAcceptanceTest {
 	public void shouldHandlesGetWebRequestWithParameters() throws IOException, SAXException {
 		MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
 		String returnValue = "theReturnValue";
-		MockHTTPServer server = builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue).getMockHTTPServerBuilder().build(port);
+		builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue);
+		MockHTTPServer server = builder.build(port);
 		GetMethodWebRequest getMethodWebRequest = new GetMethodWebRequest(serverUrl + testUri);
 		getMethodWebRequest.setParameter("why", "yes");
 		WebConversation wc = new WebConversation();
@@ -69,7 +70,8 @@ public class MockHttpAcceptanceTest {
 	public void shouldHandlesGetWebRequestWithParametersAndReturnValue() throws IOException, SAXException {
 		MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
 		String returnValue = "theReturnValue";
-		MockHTTPServer server = builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue).getMockHTTPServerBuilder().build(port);
+		builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue);
+		MockHTTPServer server =builder.build(port);
 		GetMethodWebRequest getMethodWebRequest = new GetMethodWebRequest(serverUrl + testUri);
 		getMethodWebRequest.setParameter("why", "yes");
 		WebConversation wc = new WebConversation();
@@ -83,7 +85,9 @@ public class MockHttpAcceptanceTest {
 		WebConversation wc = new WebConversation();
 		WebRequest webRequest = new PostMethodWebRequest("http://localhost:8082/tester");
 		webRequest.setParameter("testField", "hello");
-		MockHTTPServer server = new MockHTTPServerBuilder().createNewExpectation().withExpectedURI("/tester").withExpectedParam("testField", "hello").willReturn("").getMockHTTPServerBuilder().build(8082);
+		MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
+		builder.createNewExpectation().withExpectedURI("/tester").withExpectedParam("testField", "hello").willReturn("");
+		MockHTTPServer server =builder.build(8082);
 		WebResponse wr = wc.getResponse(webRequest);
 		assertThat(wr.getText(), is(""));
 		server.assertThatAllExpectationsAreMet();
@@ -96,7 +100,9 @@ public class MockHttpAcceptanceTest {
 		String returnValue = "theReturnValue";
 		WebRequest webRequest = new PostMethodWebRequest("http://localhost:8082/tester");
 		webRequest.setParameter("testField", "hello");
-		MockHTTPServer server = new MockHTTPServerBuilder().createNewExpectation().withExpectedURI("/tester").withExpectedParam("testField", "hello").willReturn(returnValue, 400).getMockHTTPServerBuilder().build(8082);
+		MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
+		builder.createNewExpectation().withExpectedURI("/tester").withExpectedParam("testField", "hello").willReturn(returnValue, 400);
+		MockHTTPServer server = builder.build(8082);
 		WebResponse response = wc.getResponse(webRequest);
 		assertThat(response.getResponseCode(), is(400));
 		server.assertThatAllExpectationsAreMet();
@@ -106,7 +112,8 @@ public class MockHttpAcceptanceTest {
 	public void shouldHandlesGetWebRequestWithErrorCode() throws IOException, SAXException {
 		MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
 		String returnValue = "theReturnValue";
-		MockHTTPServer server = builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue, 400).getMockHTTPServerBuilder().build(port);
+		builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue, 400);
+		MockHTTPServer server = builder.build(port);
 		GetMethodWebRequest getMethodWebRequest = new GetMethodWebRequest(serverUrl + testUri);
 		getMethodWebRequest.setParameter("why", "yes");
 		WebConversation wc = new WebConversation();
@@ -120,7 +127,8 @@ public class MockHttpAcceptanceTest {
 	public void shouldThrowErrorWhenCallCountIsOverStepped() throws IOException, SAXException {
 		MockHTTPServerBuilder builder = new MockHTTPServerBuilder();
 		String returnValue = "theReturnValue";
-		MockHTTPServer server = builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue, 400).getMockHTTPServerBuilder().build(port);
+		builder.createNewExpectation().withExpectedURI(testUri).withExpectedParam("why", "yes").willReturn(returnValue, 400);
+		MockHTTPServer server =  builder.build(port);
 		GetMethodWebRequest getMethodWebRequest = new GetMethodWebRequest(serverUrl + testUri);
 		getMethodWebRequest.setParameter("why", "yes");
 		WebConversation wc = new WebConversation();
