@@ -18,7 +18,7 @@ public class RequestExpectation {
 	private Matcher<String> matcher;
 	private String method = "GET";
 
-	RequestExpectation(MockHTTPServerBuilder mockHTTPServerBuilder) {
+	RequestExpectation(HTTPServerBuilder mockHTTPServerBuilder) {
 		this.mockHTTPServerBuilder = mockHTTPServerBuilder;
 	}
 

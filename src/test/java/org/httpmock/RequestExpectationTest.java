@@ -149,10 +149,10 @@ public class RequestExpectationTest {
 
 	@Test
 	public void testGetRequestExpectationBuilder() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+		HTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
 
-		assertThat(requestExpectation.getMockHTTPServerBuilder(), is(mockHTTPServerBuilder));
+		assertThat(requestExpectation.geHTTPServerBuilder(), is(mockHTTPServerBuilder));
 	}
 
 	@Test(expected = ExpectationError.class)
