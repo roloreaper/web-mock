@@ -59,7 +59,7 @@ public class MockHTTPServerBuilder implements HTTPServerBuilder<MockHTTPServer> 
 		return context;
 	}
 
-	public ExpectationBuilder getExpectations() {
+	public Expectations getExpectations() {
 		return expectations;
 	}
 
