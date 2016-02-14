@@ -34,24 +34,8 @@ public class MockHTTPServer extends NanoHTTPD {
 			currentServer = new MockHTTPServer(port, requestHandler, context);
 			mockServers.put(port, currentServer);
 			currentServer.start();
-		} else {
-			if (currentServer.isAlive()) {
-				throw new RuntimeException("Server is alreadyRunning");
-			}
-			if (currentServer.wasStarted()) {
-				throw new RuntimeException("Server been started");
-			}
-
-				currentServer.start();
 		}
 
-		while (!currentServer.isAlive()) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
 		return currentServer;
 	}
 

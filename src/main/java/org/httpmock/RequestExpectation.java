@@ -57,16 +57,6 @@ public class RequestExpectation {
 
 	/**
 	 *
-	 * @param params Map of expected parameters where the first is the Parameter Name the second the value
-	 * @return returns this for chaining and readability;
-	 */
-	public RequestExpectation withExpectedParameters(Map<String, String> params) {
-		this.params.putAll(params);
-		return this;
-	}
-
-	/**
-	 *
 	 */
 	public RequestExpectation willBeInvoked(int numberTimeExpectationMustBeMet) {
 		this.numberTimeExpectationMustBeMet = numberTimeExpectationMustBeMet;
