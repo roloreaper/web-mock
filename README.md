@@ -9,3 +9,4 @@ and then when your test executes it will allow you to assert if every call was m
 # Project Status
 [![Build Status](https://travis-ci.org/roloreaper/http-mock.svg?branch=master)](https://travis-ci.org/roloreaper/http-mock)
 [![Coverage Status](https://coveralls.io/repos/github/roloreaper/http-mock/badge.svg?branch=master)](https://coveralls.io/github/roloreaper/http-mock?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.httpmock/httpmock/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.httpmock/httpmock)
