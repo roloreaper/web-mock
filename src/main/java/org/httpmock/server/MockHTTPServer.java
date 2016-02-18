@@ -2,12 +2,10 @@ package org.httpmock.server;
 
 import fi.iki.elonen.NanoHTTPD;
 import org.jmock.Mockery;
-import org.omg.IOP.TAG_JAVA_CODEBASE;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class MockHTTPServer extends NanoHTTPD {
 	private static Map<Integer, MockHTTPServer> mockServers = new HashMap<Integer, MockHTTPServer>();
@@ -47,40 +45,39 @@ public class MockHTTPServer extends NanoHTTPD {
 
     @Override
     public NanoHTTPD.Response serve(NanoHTTPD.IHTTPSession session) {
-        if (session.getMethod().equals(Method.POST)) {
-			Map<String, String> parameters = getBodyParameters(session);
-			String body = parameters.get("postData");
-			return serve(session.getUri(), session.getMethod(), session.getHeaders(), session.getParms(),body);
+		String body =null;
+		if (session.getMethod().equals(Method.POST)) {
+			body = getBody(session);
         }
-        return serve(session.getUri(),session.getMethod(),session.getHeaders(),session.getParms(),"");
+        return serve(session.getUri(), session.getMethod(), session.getHeaders(), session.getParms(), body);
     }
 
-    private Map<String, String> getBodyParameters(IHTTPSession session) {
-        HashMap<String, String> stuff = new HashMap<String ,String>();
+    private String getBody(IHTTPSession session) {
+        HashMap<String, String> stuff = new HashMap<>();
         try {
             session.parseBody(stuff);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ResponseException e) {
+			if (stuff.get("postData") != null) {
+				return stuff.get("postData");
+			}
+        } catch (IOException|ResponseException e) {
             e.printStackTrace();
         }
-        return stuff;
+        return null;
     }
 
 
 
-    private NanoHTTPD.Response serve(String uri, Method method, Map<String,String> headers, Map<String,String> params,String body) {
+    private NanoHTTPD.Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> params, String body) {
 		try {
 			requestHandler.url(uri);
 			for (String param : params.keySet()) {
 				requestHandler.param(param, params.get(param));
 			}
+
 			if (body!=null) {
-				if (method.equals(Method.POST)) {
-					requestHandler.bodyMatching(body);
-				}
+				requestHandler.bodyMatching(body);
 			}
-            Response response = NanoHTTPD.newFixedLengthResponse(getStatus(requestHandler.getResponseStatus()), null, requestHandler.returnValue().toString());
+			Response response = NanoHTTPD.newFixedLengthResponse(getStatus(requestHandler.getResponseStatus()), null, requestHandler.returnValue().toString());
             return response;
 		} catch (java.lang.Throwable e) {
 			this.thrown = e;
@@ -104,17 +101,6 @@ public class MockHTTPServer extends NanoHTTPD {
 
 	public void assertThatAllExpectationsAreMet() {
 		stop();
-		boolean isAlive = true;
-		while (isAlive) {
-			System.out.println("this.isAlive() = " + this.isAlive());
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			isAlive = this.isAlive();
-
-		}
 
 		releaseServerInstance();
 		if (thrown != null) {

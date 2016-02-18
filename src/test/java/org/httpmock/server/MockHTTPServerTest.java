@@ -1,13 +1,18 @@
 package org.httpmock.server;
 
+import fi.iki.elonen.NanoHTTPD;
 import org.httpmock.MockHTTPServerBuilder;
+import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+import org.junit.internal.matchers.IsCollectionContaining;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -32,6 +37,92 @@ public class MockHTTPServerTest {
 				serverSocket.close();
 			}
 		}
+	}
+
+	@Test
+	public void testParameterPassingOnPost() throws IOException, NanoHTTPD.ResponseException {
+		Mockery mockery = new Mockery();
+		RequestHandler requestHandler = mockery.mock(RequestHandler.class);
+		MockHTTPServer mockHTTPServer = new MockHTTPServer(10, requestHandler, mockery);
+		NanoHTTPD.IHTTPSession session = mockery.mock(NanoHTTPD.IHTTPSession.class);
+		mockery.checking(new Expectations() {{
+			atLeast(1).of(session).getMethod();
+			will(returnValue(NanoHTTPD.Method.POST));
+			oneOf(session).parseBody(with(equal(new HashMap<String, String>())));
+			oneOf(session).getUri();
+			String uri = "uri";
+			will(returnValue(uri));
+			oneOf(requestHandler).url(uri);
+			oneOf(session).getHeaders();
+			will(returnValue(new HashMap<String, String>()));
+			oneOf(session).getParms();
+			will(returnValue(new HashMap<String,String>()));
+			oneOf(requestHandler).getResponseStatus();
+			will(returnValue(200));
+			oneOf(requestHandler).returnValue();
+			will(returnValue("TEST"));
+		}
+		});
+		mockHTTPServer.serve(session);
+		mockHTTPServer.assertThatAllExpectationsAreMet();
+	}
+
+	@Test
+	public void testParameterPassingOnPostThrowNanoHTTPDResponseException() throws IOException, NanoHTTPD.ResponseException {
+		Mockery mockery = new Mockery();
+		RequestHandler requestHandler = mockery.mock(RequestHandler.class);
+		MockHTTPServer mockHTTPServer = new MockHTTPServer(10, requestHandler, mockery);
+		NanoHTTPD.IHTTPSession session = mockery.mock(NanoHTTPD.IHTTPSession.class);
+		mockery.checking(new Expectations() {{
+			atLeast(1).of(session).getMethod();
+			will(returnValue(NanoHTTPD.Method.POST));
+			oneOf(session).parseBody(with(equal(new HashMap<String, String>())));
+			will(throwException(new NanoHTTPD.ResponseException(NanoHTTPD.Response.Status.BAD_REQUEST, "TEST")));
+			oneOf(session).getUri();
+			String uri = "uri";
+			will(returnValue(uri));
+			oneOf(requestHandler).url(uri);
+			oneOf(session).getHeaders();
+			will(returnValue(new HashMap<String, String>()));
+			oneOf(session).getParms();
+			will(returnValue(new HashMap<String, String>()));
+			oneOf(requestHandler).getResponseStatus();
+			will(returnValue(200));
+			oneOf(requestHandler).returnValue();
+			will(returnValue("TEST"));
+		}
+		});
+		mockHTTPServer.serve(session);
+		mockHTTPServer.assertThatAllExpectationsAreMet();
+	}
+
+	@Test
+	public void testInvalidReturnCode() throws IOException, NanoHTTPD.ResponseException {
+		Mockery mockery = new Mockery();
+		RequestHandler requestHandler = mockery.mock(RequestHandler.class);
+		MockHTTPServer mockHTTPServer = new MockHTTPServer(10, requestHandler, mockery);
+		NanoHTTPD.IHTTPSession session = mockery.mock(NanoHTTPD.IHTTPSession.class);
+		mockery.checking(new Expectations() {{
+			atLeast(1).of(session).getMethod();
+			will(returnValue(NanoHTTPD.Method.POST));
+			oneOf(session).parseBody(with(equal(new HashMap<String, String>())));
+			will(throwException(new NanoHTTPD.ResponseException(NanoHTTPD.Response.Status.BAD_REQUEST,"TEST")));
+			oneOf(session).getUri();
+			String uri = "uri";
+			will(returnValue(uri));
+			oneOf(requestHandler).url(uri);
+			oneOf(session).getHeaders();
+			will(returnValue(new HashMap<String, String>()));
+			oneOf(session).getParms();
+			will(returnValue(new HashMap<String, String>()));
+			oneOf(requestHandler).getResponseStatus();
+			will(returnValue(2));
+			oneOf(requestHandler).returnValue();
+			will(returnValue("TEST"));
+		}
+		});
+		mockHTTPServer.serve(session);
+		mockHTTPServer.assertThatAllExpectationsAreMet();
 	}
 
 	@Test
