@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <description>Lightweight testing framework for mocking calls to external http calls</description>
     <groupId>org.httpmock</groupId>
-    <artifactId>httpmock</artifactId>
+    <artifactId>http-mock</artifactId>
     <version>1.5-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>HttpMock WebServer API</name>
@@ -148,7 +148,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <compilerVersion>1.7</compilerVersion>
+                    <target>1.8</target>
+                    <source>1.8</source>
                 </configuration>
             </plugin>
             <plugin>
