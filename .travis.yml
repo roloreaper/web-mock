@@ -4,5 +4,6 @@ jdk:
 install: true
 
 after_success:
+  - ls -al ./
   - mvn clean test jacoco:report coveralls:report
 
