@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <description>Lightweight testing framework for mocking calls to external http calls</description>
     <groupId>org.httpmock</groupId>
-    <artifactId>http-mock</artifactId>
+    <artifactId>web-mock</artifactId>
     <version>1.5-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>HttpMock WebServer API</name>
+    <name>Web Mock</name>
     <url>https://code.google.com/p/http-mock</url>
 
     <licenses>
