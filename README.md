@@ -5,7 +5,7 @@ It has intregated JMock like asserstion to a Web Server. It allows you to set up
 and then when your test executes it will allow you to assert if every call was made and if the Request and Responses were correct
 
 # Project Status
-* [![Build Status](https://travis-ci.org/roloreaper/http-mock.svg?branch=master)](https://travis-ci.org/roloreaper/http-mock)
+* [![Build Status](https://app.travis-ci.com/roloreaper/web-mock.svg?branch=master)](https://travis-ci.org/roloreaper/http-mock)
 * [![Code Coverage](https://codecov.io/github/roloreaper/http-mock/coverage.svg?branch=master)](https://codecov.io/github/roloreaper/http-mock?branch=master)
 * [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.httpmock/httpmock/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.httpmock/httpmock)
  
