@@ -4,39 +4,47 @@ import fi.iki.elonen.NanoHTTPD;
 import org.httpmock.MockHTTPServerBuilder;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Test;
-import org.junit.internal.matchers.IsCollectionContaining;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MockHTTPServerTest {
 	public final int port = 7666;
 
-	@Test(expected = java.net.BindException.class)
+	@Test()
 	public void shouldStillFailToStartIfPortIsInUseByNonMockHttpServer() throws IOException {
-		int portInUse = 5432;
-		ServerSocket serverSocket = null;
-		try {
-			serverSocket = new ServerSocket(portInUse);
-		} catch (BindException e) {
-			System.out.println("Socket Already in use so ignoring");
-		}
+		assertThrows(java.net.BindException.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				int portInUse = 5432;
+				ServerSocket serverSocket = null;
+				try {
+					serverSocket = new ServerSocket(portInUse);
+				} catch (BindException e) {
+					System.out.println("Socket Already in use so ignoring");
+				}
 
-		try {
-			new MockHTTPServerBuilder().build(portInUse);
-		} finally {
-			if (serverSocket != null) {
-				serverSocket.close();
+				try {
+					new MockHTTPServerBuilder().build(portInUse);
+				} finally {
+					if (serverSocket != null) {
+						serverSocket.close();
+					}
+				}
 			}
-		}
+		});
+
 	}
 
 	@Test
@@ -55,8 +63,8 @@ public class MockHTTPServerTest {
 			oneOf(requestHandler).url(uri);
 			oneOf(session).getHeaders();
 			will(returnValue(new HashMap<String, String>()));
-			oneOf(session).getParms();
-			will(returnValue(new HashMap<String,String>()));
+			oneOf(session).getParameters();
+			will(returnValue(new HashMap<String, List<String>>()));
 			oneOf(requestHandler).getResponseStatus();
 			will(returnValue(200));
 			oneOf(requestHandler).returnValue();
@@ -84,8 +92,8 @@ public class MockHTTPServerTest {
 			oneOf(requestHandler).url(uri);
 			oneOf(session).getHeaders();
 			will(returnValue(new HashMap<String, String>()));
-			oneOf(session).getParms();
-			will(returnValue(new HashMap<String, String>()));
+			oneOf(session).getParameters();
+			will(returnValue(new HashMap<String, List<String>>()));
 			oneOf(requestHandler).getResponseStatus();
 			will(returnValue(200));
 			oneOf(requestHandler).returnValue();
@@ -113,8 +121,8 @@ public class MockHTTPServerTest {
 			oneOf(requestHandler).url(uri);
 			oneOf(session).getHeaders();
 			will(returnValue(new HashMap<String, String>()));
-			oneOf(session).getParms();
-			will(returnValue(new HashMap<String, String>()));
+			oneOf(session).getParameters();
+			will(returnValue(new HashMap<String, List<String>>()));
 			oneOf(requestHandler).getResponseStatus();
 			will(returnValue(2));
 			oneOf(requestHandler).returnValue();

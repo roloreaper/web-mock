@@ -5,6 +5,7 @@ import org.jmock.Mockery;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MockHTTPServer extends NanoHTTPD {
@@ -49,7 +50,7 @@ public class MockHTTPServer extends NanoHTTPD {
 		if (session.getMethod().equals(Method.POST)) {
 			body = getBody(session);
         }
-        return serve(session.getUri(), session.getMethod(), session.getHeaders(), session.getParms(), body);
+        return serve(session.getUri(), session.getMethod(), session.getHeaders(), session.getParameters(), body);
     }
 
     private String getBody(IHTTPSession session) {
@@ -67,7 +68,7 @@ public class MockHTTPServer extends NanoHTTPD {
 
 
 
-    private NanoHTTPD.Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> params, String body) {
+    private NanoHTTPD.Response serve(String uri, Method method, Map<String, String> headers, Map<String, List<String>> params, String body) {
 		try {
 			requestHandler.url(uri);
 			for (String param : params.keySet()) {

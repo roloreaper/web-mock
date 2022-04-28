@@ -4,7 +4,10 @@ import org.httpmock.server.MockHTTPServer;
 import org.httpmock.server.RequestHandler;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Imposteriser;
+import org.jmock.api.ThreadingPolicy;
 import org.jmock.internal.ExpectationBuilder;
+import org.jmock.lib.concurrent.Synchroniser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ public class MockHTTPServerBuilder implements HTTPServerBuilder<MockHTTPServer> 
 
 	public MockHTTPServerBuilder() {
 		this.context = new Mockery();
+		context.setThreadingPolicy(new Synchroniser());
 		expectations = new Expectations();
 		this.requestHandler = context.mock(RequestHandler.class);
 	}

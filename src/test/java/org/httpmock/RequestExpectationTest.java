@@ -5,6 +5,8 @@ import org.jmock.Mockery;
 import org.jmock.api.ExpectationError;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -82,11 +84,11 @@ public class RequestExpectationTest {
 		Mockery context = mockHTTPServerBuilder.getContext();
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test").withExpectedParam("param", "value");
+		requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
 		requestExpectation.initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");
-		requestHandler.param("param", "value");
+		requestHandler.param("param", List.of("value"));
 		requestHandler.getResponseStatus();
 		requestHandler.returnValue();
 		context.assertIsSatisfied();
@@ -98,16 +100,16 @@ public class RequestExpectationTest {
 		Mockery context = mockHTTPServerBuilder.getContext();
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test").withExpectedParam("param", "value");
+		requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
 		requestExpectation.willBeInvoked(2);
 		requestExpectation.initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");
-		requestHandler.param("param", "value");
+		requestHandler.param("param", List.of("value"));
 		requestHandler.getResponseStatus();
 		requestHandler.returnValue();
 		requestHandler.url("test");
-		requestHandler.param("param", "value");
+		requestHandler.param("param", List.of("value"));
 		requestHandler.getResponseStatus();
 		requestHandler.returnValue();
 		context.assertIsSatisfied();
@@ -190,7 +192,7 @@ public class RequestExpectationTest {
 		Mockery context = mockHTTPServerBuilder.getContext();
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test").withExpectedParam("param", "value");
+		requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
 		requestExpectation.initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");
@@ -205,12 +207,12 @@ public class RequestExpectationTest {
 		Mockery context = mockHTTPServerBuilder.getContext();
 		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
 		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test").withExpectedParam("param", "value");
+		requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
 		requestExpectation.willBeInvoked(2);
 		requestExpectation.initialiseExpectationsForHandler(requestHandler);
 		context.checking(mockHTTPServerBuilder.getExpectations());
 		requestHandler.url("test");
-		requestHandler.param("param", "value");
+		requestHandler.param("param", List.of("value"));
 		requestHandler.getResponseStatus();
 		requestHandler.returnValue();
 		requestHandler.url("test");

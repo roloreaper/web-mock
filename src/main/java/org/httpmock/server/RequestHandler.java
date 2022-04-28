@@ -1,12 +1,14 @@
 package org.httpmock.server;
 
+import java.util.List;
+
 /**
  * Interface for internalHttpMockUseOnly
  */
 public interface RequestHandler {
 	void url(String url);
 
-	void param(String param, String value);
+	void param(String param, List<String> value);
 
 	String returnValue();
 

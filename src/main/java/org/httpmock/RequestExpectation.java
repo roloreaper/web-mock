@@ -5,6 +5,7 @@ import org.httpmock.server.RequestHandler;
 import org.jmock.Expectations;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RequestExpectation {
@@ -13,7 +14,7 @@ public class RequestExpectation {
 	private String uri;
 	private int numberTimeExpectationMustBeMet = 1;
 	private String returnValue;
-	private Map<String, String> params = new HashMap<String, String>();
+	private Map<String, List<String>> params = new HashMap<>();
 	private int statusCodeReturned = 200;
 	private Matcher<String> matcher;
 	private String method = "GET";
@@ -50,7 +51,7 @@ public class RequestExpectation {
 	 * @param value the string value for that param
 	 * @return returns this for chaining and readability
 	 */
-	public RequestExpectation withExpectedParam(String param, String value) {
+	public RequestExpectation withExpectedParam(String param, List<String> value) {
 		this.params.put(param, value);
 		return this;
 	}
