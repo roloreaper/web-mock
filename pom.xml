@@ -4,7 +4,7 @@
     <description>Lightweight testing framework for mocking calls to external http calls</description>
     <groupId>io.github.roloreaper.web-mock</groupId>
     <artifactId>web-mock</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Web Mock</name>
     <url>https://github.com/roloreaper/web-mock</url>
