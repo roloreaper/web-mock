@@ -1,15 +1,15 @@
 package org.webmock;
 
+import org.junit.jupiter.api.Test;
 import org.webmock.server.RequestHandler;
 import org.jmock.Mockery;
 import org.jmock.api.ExpectationError;
-import org.junit.Test;
 
 import java.util.List;
 
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 public class RequestExpectationTest {
 	@Test
