@@ -7,5 +7,5 @@ and then when your test executes it will allow you to assert if every call was m
 # Project Status
 * [![Build Status](https://app.travis-ci.com/roloreaper/web-mock.svg?branch=master)](https://travis-ci.org/roloreaper/web-mock)
 * [![Code Coverage](https://codecov.io/github/roloreaper/web-mock/coverage.svg?branch=master)](https://codecov.io/github/roloreaper/http-mock?branch=master)
-* [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.webmock/webmock/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.httpmock/httpmock)
+* [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.roloreaper.web-mock/web-mock/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.roloreaper.web-mock/web-mock/)
  
