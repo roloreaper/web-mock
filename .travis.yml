@@ -17,7 +17,7 @@ script: mvn clean verify
 deploy:
   provider: script
   script: .travis/release.sh
-  skip_cleanup: true
+  clean_up: false
   on:
     tags: true
     jdk: openjdk11
