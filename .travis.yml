@@ -5,7 +5,7 @@ jdk:
 os:
   - linux
   - osx
-  - windows
+  #- windows
 install: true
 
 before_script:
