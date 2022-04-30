@@ -1,6 +1,7 @@
 package org.webmock;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.webmock.server.RequestHandler;
 import org.jmock.Mockery;
 import org.jmock.api.ExpectationError;
@@ -10,6 +11,7 @@ import java.util.List;
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RequestExpectationTest {
 	@Test
@@ -157,99 +159,130 @@ public class RequestExpectationTest {
 		assertThat(requestExpectation.geHTTPServerBuilder(), is(mockHTTPServerBuilder));
 	}
 
-	@Test(expected = ExpectationError.class)
+	@Test()
 	public void assertThatWithExpectedURIAddsAnExpectationforUrlWillFailIfNotInvoked() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
-		Mockery context = mockHTTPServerBuilder.getContext();
-		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
-		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test");
-		requestExpectation.initialiseExpectationsForHandler(requestHandler);
-		context.checking(mockHTTPServerBuilder.getExpectations());
-		context.assertIsSatisfied();
+		assertThrows(ExpectationError.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+				Mockery context = mockHTTPServerBuilder.getContext();
+				RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+				RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+				requestExpectation.withExpectedURI("test");
+				requestExpectation.initialiseExpectationsForHandler(requestHandler);
+				context.checking(mockHTTPServerBuilder.getExpectations());
+				context.assertIsSatisfied();
+			}
+		});
+
 
 	}
 
-	@Test(expected = ExpectationError.class)
+	@Test()
 	public void testWithExpectedURIAndCountWillFailIfNotInvoked() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
-		Mockery context = mockHTTPServerBuilder.getContext();
-		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
-		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test");
-		requestExpectation.willBeInvoked(2);
-		requestExpectation.initialiseExpectationsForHandler(requestHandler);
-		context.checking(mockHTTPServerBuilder.getExpectations());
-		requestHandler.url("test");
-		requestHandler.getResponseStatus();
-		requestHandler.returnValue();
-		context.assertIsSatisfied();
+		assertThrows(ExpectationError.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+				Mockery context = mockHTTPServerBuilder.getContext();
+				RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+				RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+				requestExpectation.withExpectedURI("test");
+				requestExpectation.willBeInvoked(2);
+				requestExpectation.initialiseExpectationsForHandler(requestHandler);
+				context.checking(mockHTTPServerBuilder.getExpectations());
+				requestHandler.url("test");
+				requestHandler.getResponseStatus();
+				requestHandler.returnValue();
+				context.assertIsSatisfied();
+			}
+		});
 	}
 
-	@Test(expected = ExpectationError.class)
+	@Test()
 	public void testWithExpectedParamFailsIfNotInvoked() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
-		Mockery context = mockHTTPServerBuilder.getContext();
-		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
-		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
-		requestExpectation.initialiseExpectationsForHandler(requestHandler);
-		context.checking(mockHTTPServerBuilder.getExpectations());
-		requestHandler.url("test");
-		requestHandler.getResponseStatus();
-		requestHandler.returnValue();
-		context.assertIsSatisfied();
+		assertThrows(ExpectationError.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+				Mockery context = mockHTTPServerBuilder.getContext();
+				RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+				RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+				requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
+				requestExpectation.initialiseExpectationsForHandler(requestHandler);
+				context.checking(mockHTTPServerBuilder.getExpectations());
+				requestHandler.url("test");
+				requestHandler.getResponseStatus();
+				requestHandler.returnValue();
+				context.assertIsSatisfied();
+			}
+		});
 	}
 
-	@Test(expected = ExpectationError.class)
+	@Test()
 	public void testWithExpectedParamWithCountIfNotInvoked() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
-		Mockery context = mockHTTPServerBuilder.getContext();
-		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
-		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
-		requestExpectation.willBeInvoked(2);
-		requestExpectation.initialiseExpectationsForHandler(requestHandler);
-		context.checking(mockHTTPServerBuilder.getExpectations());
-		requestHandler.url("test");
-		requestHandler.param("param", List.of("value"));
-		requestHandler.getResponseStatus();
-		requestHandler.returnValue();
-		requestHandler.url("test");
-		requestHandler.getResponseStatus();
-		requestHandler.returnValue();
-		context.assertIsSatisfied();
+		assertThrows(ExpectationError.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+				Mockery context = mockHTTPServerBuilder.getContext();
+				RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+				RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+				requestExpectation.withExpectedURI("test").withExpectedParam("param", List.of("value"));
+				requestExpectation.willBeInvoked(2);
+				requestExpectation.initialiseExpectationsForHandler(requestHandler);
+				context.checking(mockHTTPServerBuilder.getExpectations());
+				requestHandler.url("test");
+				requestHandler.param("param", List.of("value"));
+				requestHandler.getResponseStatus();
+				requestHandler.returnValue();
+				requestHandler.url("test");
+				requestHandler.getResponseStatus();
+				requestHandler.returnValue();
+				context.assertIsSatisfied();
+			}
+		});
 	}
 
-	@Test(expected = ExpectationError.class)
+	@Test()
 	public void testWillReturnIfNotInvoked() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
-		Mockery context = mockHTTPServerBuilder.getContext();
-		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
-		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test");
-		requestExpectation.willReturn("testReturn");
-		requestExpectation.initialiseExpectationsForHandler(requestHandler);
-		context.checking(mockHTTPServerBuilder.getExpectations());
-		requestHandler.url("test");
-		requestHandler.getResponseStatus();
+		assertThrows(ExpectationError.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+				Mockery context = mockHTTPServerBuilder.getContext();
+				RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+				RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+				requestExpectation.withExpectedURI("test");
+				requestExpectation.willReturn("testReturn");
+				requestExpectation.initialiseExpectationsForHandler(requestHandler);
+				context.checking(mockHTTPServerBuilder.getExpectations());
+				requestHandler.url("test");
+				requestHandler.getResponseStatus();
 
-		context.assertIsSatisfied();
+				context.assertIsSatisfied();
+			}
+		});
 	}
 
-	@Test(expected = ExpectationError.class)
+	@Test()
 	public void testWillReturnWithErrorCodeIfNotInvoked() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
-		Mockery context = mockHTTPServerBuilder.getContext();
-		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
-		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("test");
-		requestExpectation.willReturn("", 400);
-		requestExpectation.initialiseExpectationsForHandler(requestHandler);
-		context.checking(mockHTTPServerBuilder.getExpectations());
-		requestHandler.url("test");
-		requestHandler.returnValue();
-		context.assertIsSatisfied();
+		assertThrows(ExpectationError.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+				Mockery context = mockHTTPServerBuilder.getContext();
+				RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+				RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+				requestExpectation.withExpectedURI("test");
+				requestExpectation.willReturn("", 400);
+				requestExpectation.initialiseExpectationsForHandler(requestHandler);
+				context.checking(mockHTTPServerBuilder.getExpectations());
+				requestHandler.url("test");
+				requestHandler.returnValue();
+				context.assertIsSatisfied();
+			}
+		});
 
 	}
 
@@ -269,19 +302,24 @@ public class RequestExpectationTest {
 
 	}
 
-	@Test(	expected = ExpectationError.class)
+	@Test()
 	public void testUsingMatcherNotMatching() throws Exception {
-		MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
-		Mockery context = mockHTTPServerBuilder.getContext();
-		RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
-		RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
-		requestExpectation.withExpectedURI("/bob").withBodyMatching(containsString("Samual")).initialiseExpectationsForHandler(requestHandler);
-		context.checking(mockHTTPServerBuilder.getExpectations());
-		requestHandler.url("/bob");
-		requestHandler.returnValue();
-		requestHandler.getResponseStatus();
-		requestHandler.bodyMatching("YesRowland HahahahaRowlansadalksdjlakjd");
-		context.assertIsSatisfied();
+		assertThrows(ExpectationError.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				MockHTTPServerBuilder mockHTTPServerBuilder = new MockHTTPServerBuilder();
+				Mockery context = mockHTTPServerBuilder.getContext();
+				RequestHandler requestHandler = mockHTTPServerBuilder.getRequestHandler();
+				RequestExpectation requestExpectation = new RequestExpectation(mockHTTPServerBuilder);
+				requestExpectation.withExpectedURI("/bob").withBodyMatching(containsString("Samual")).initialiseExpectationsForHandler(requestHandler);
+				context.checking(mockHTTPServerBuilder.getExpectations());
+				requestHandler.url("/bob");
+				requestHandler.returnValue();
+				requestHandler.getResponseStatus();
+				requestHandler.bodyMatching("YesRowland HahahahaRowlansadalksdjlakjd");
+				context.assertIsSatisfied();
+			}
+		});
 
 	}
 }
