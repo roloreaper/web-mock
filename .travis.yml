@@ -2,6 +2,10 @@ language: java
 jdk:
   - openjdk11
   - openjdk17
+os:
+  - linux
+  - osx
+  - windows
 install: true
 
 before_script:
