@@ -13,7 +13,7 @@ install: true
 before_script:
   - pip install --user codecov
 
-script: mvn clean verify
+script: ./mvnw clean verify
 deploy:
   provider: script
   script: .travis/release.sh
